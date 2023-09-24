@@ -5,20 +5,36 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	// env variables loading
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
 
+	// server launching
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
+
+	r.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "ok",
+			"message": "test",
 		})
 	})
-	r.Run()
+
+	r.POST("/test/:id", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "testId",
+		})
+	})
+
+	go func() {
+		err = r.Run(":" + os.Getenv("PORT"))
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+	}()
 
 }
