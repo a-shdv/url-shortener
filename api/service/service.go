@@ -1,6 +1,9 @@
 package service
 
-import "github.com/a-shdv/url-shortener/api/repo"
+import (
+	"github.com/a-shdv/url-shortener/api/model"
+	"github.com/a-shdv/url-shortener/api/repo"
+)
 
 type Service struct {
 	Request
@@ -15,9 +18,9 @@ func NewService(repo *repo.Repo) *Service {
 }
 
 type Request interface {
-	CreateShortUrl()
+	CreateShortUrl(request model.Request)
 }
 
 type Response interface {
-	GetOriginalUrl()
+	GetOriginalUrl(url string)
 }

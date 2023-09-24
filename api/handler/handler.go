@@ -3,7 +3,6 @@ package handler
 import (
 	"github.com/a-shdv/url-shortener/api/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type Handler struct {
@@ -17,17 +16,9 @@ func NewHandler(service *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
-	router.POST("/a/:url", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "testId",
-		})
-	})
+	router.POST("/a/", h.сreateShortUrl)
 
-	router.GET("/s/:code", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "test",
-		})
-	})
+	router.GET("/s/:code", h.getOriginalUrl)
 
 	return router
 }

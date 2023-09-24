@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-var Ctx = context.Background()
+var dbCtx = context.Background()
 
 func NewRedisDb(dbNo int) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{

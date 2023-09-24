@@ -12,7 +12,7 @@ func NewResponseService(repo repo.ResponseRepo) *ResponseService {
 	}
 }
 
-func (r ResponseService) GetOriginalUrl() {
+func (r *ResponseService) GetOriginalUrl(url string) {
 	//TODO implement me
 	panic("implement me")
 }
