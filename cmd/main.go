@@ -1,11 +1,14 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/a-shdv/url-shortener/api/handler"
+	"github.com/a-shdv/url-shortener/api/repo"
+	"github.com/a-shdv/url-shortener/api/service"
 	"github.com/joho/godotenv"
 	"log"
-	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -14,27 +17,24 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+	redisDb := repo.NewRedisDb(0)
+	defer redisDb.Close()
 
-	// server launching
-	r := gin.Default()
+	repositories := repo.NewRepository(redisDb)
+	services := service.NewService(repositories)
+	handlers := handler.NewHandler(services)
 
-	r.GET("/test", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "test",
-		})
-	})
-
-	r.POST("/test/:id", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "testId",
-		})
-	})
-
+	log.Println("App has been started...")
+	srv := new(Server)
 	go func() {
-		err = r.Run(":" + os.Getenv("PORT"))
-		if err != nil {
+		if err = srv.Run(os.Getenv("SERVER_ADDR"), handlers.InitRoutes()); err != nil {
 			log.Fatalf(err.Error())
 		}
 	}()
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	log.Println("App is shutting down...")
 }
