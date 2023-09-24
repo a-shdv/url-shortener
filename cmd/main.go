@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"log"
-	"os"
+	"net/http"
 )
 
 func main() {
@@ -13,10 +13,12 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 
-	app := fiber.New()
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ok",
+		})
+	})
+	r.Run()
 
-	err = app.Listen(os.Getenv("URL_ADDR"))
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
 }
