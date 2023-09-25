@@ -4,10 +4,12 @@ import (
 	"github.com/a-shdv/url-shortener/api/helper"
 	"github.com/a-shdv/url-shortener/api/model"
 	"github.com/a-shdv/url-shortener/api/repo"
+	"time"
 )
 
 type UrlService interface {
-	CreateShortUrl(*model.Url) string
+	CreateShortUrl(*model.Url) (string, error)
+	//GetOriginalUrl(string) (string, error)
 }
 
 type UrlServiceImpl struct {
@@ -18,16 +20,26 @@ func NewUrlService(repo repo.UrlRepo) *UrlServiceImpl {
 	return &UrlServiceImpl{repo: repo}
 }
 
-func (r *UrlServiceImpl) CreateShortUrl(req *model.Url) string {
-	// generating a new short url address
+func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 	var shortUrl string
-	if req.CustomShortUrl == "" {
-		shortUrl = helper.GenerateRandomChar()
-	} else {
+	if req.CustomShortUrl != "" {
 		shortUrl = req.CustomShortUrl
+	} else {
+		shortUrl = helper.GenerateRandomChar()
 	}
 
-	r.repo.CreateShortUrl(shortUrl, req.OriginalUrl, req.ExpirationTimeHours)
+	res, err := u.repo.CreateShortUrl(req.OriginalUrl, shortUrl, 12*time.Hour)
+	if err != nil {
+		return res, err
+	}
 
-	return shortUrl
+	return res, nil
 }
+
+//func (u *UrlServiceImpl) GetOriginalUrl(reqUrl string) (string, error) {
+//	urlDb, err := u.repo.GetOriginalUrl(reqUrl)
+//	if err != nil {
+//		return "", err
+//	}
+//	return urlDb, nil
+//}

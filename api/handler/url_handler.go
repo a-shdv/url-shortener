@@ -20,7 +20,6 @@ func (h *Handler) createShortUrl(c *gin.Context) {
 	}
 
 	reqUrl := helper.ParseUrlAddr(request.OriginalUrl)
-
 	if !govalidator.IsURL(reqUrl) {
 		c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": "wrong url format!",
@@ -28,7 +27,14 @@ func (h *Handler) createShortUrl(c *gin.Context) {
 		return
 	}
 
-	shortUrl := h.service.UrlService.CreateShortUrl(request)
+	shortUrl, err := h.service.UrlService.CreateShortUrl(request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "url is already in database!",
+			"code":  shortUrl,
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"code": shortUrl,
@@ -36,5 +42,4 @@ func (h *Handler) createShortUrl(c *gin.Context) {
 }
 
 func (h *Handler) getOriginalUrl(c *gin.Context) {
-
 }

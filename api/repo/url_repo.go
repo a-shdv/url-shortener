@@ -1,13 +1,14 @@
 package repo
 
 import (
+	"errors"
 	"github.com/go-redis/redis/v8"
-	"log"
 	"time"
 )
 
 type UrlRepo interface {
-	CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration)
+	CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) (string, error)
+	//GetOriginalUrl(string) (string, error)
 }
 
 type UrlRepoImpl struct {
@@ -20,15 +21,27 @@ func NewUrlRepoImpl(db *redis.Client) *UrlRepoImpl {
 	}
 }
 
-func (r *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) {
-	// check if the user provided short is already in use
-	shortUrlDb, _ := r.db.Get(dbCtx, shortUrl).Result()
+func (u *UrlRepoImpl) CreateShortUrl(originalUrl, shortUrl string, expirationTimeHours time.Duration) (string, error) {
+	shortUrlDb := u.getShortUrlByOriginalUrl(originalUrl)
 	if shortUrlDb != "" {
-		log.Fatalf("short url is already in use!")
+		return shortUrlDb, errors.New("url is already in database")
 	}
-
-	err := r.db.Set(dbCtx, shortUrl, originalUrl, expirationTimeHours*3600*time.Second).Err()
+	err := u.db.Set(dbCtx, originalUrl, shortUrl, expirationTimeHours).Err()
 	if err != nil {
-		log.Fatalf(err.Error())
+		return "", err
 	}
+	return shortUrl, nil
 }
+
+func (u *UrlRepoImpl) getShortUrlByOriginalUrl(originalUrl string) string {
+	shortUrlDb, _ := u.db.Get(dbCtx, originalUrl).Result()
+	return shortUrlDb
+}
+
+//func (u *UrlRepoImpl) GetOriginalUrl(originalUrl, shortUrl string) (string, error) {
+//	urlDb, err := u.db.Get(dbCtx, originalUrl).Result()
+//	if err != nil {
+//		return "", err
+//	}
+//	return urlDb, nil
+//}
