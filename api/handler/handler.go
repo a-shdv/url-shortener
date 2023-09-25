@@ -17,6 +17,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
 	router.POST("/a/", h.createShortUrl)
+	router.GET("/s/:code", h.getOriginalUrl)
 
 	return router
 }

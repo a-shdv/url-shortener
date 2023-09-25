@@ -5,6 +5,7 @@ import (
 	"github.com/a-shdv/url-shortener/api/model"
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -39,4 +40,20 @@ func (h *Handler) createShortUrl(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"code": shortUrl,
 	})
+}
+
+func (h *Handler) getOriginalUrl(c *gin.Context) {
+	code := c.Param("code")
+	if code == "" {
+		log.Printf("code provided in url is empty!")
+		return
+	}
+
+	url, err := h.service.UrlService.GetOriginalUrl(code)
+	if err != nil {
+		log.Printf("unable to find url")
+		return
+	}
+
+	c.Redirect(http.StatusFound, "https://www."+url)
 }

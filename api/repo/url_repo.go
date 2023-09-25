@@ -8,7 +8,7 @@ import (
 
 type UrlRepo interface {
 	CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) (string, error)
-	//GetOriginalUrl(string) (string, error)
+	GetOriginalUrl(string) (string, error)
 }
 
 type UrlRepoImpl struct {
@@ -21,19 +21,41 @@ func NewUrlRepoImpl(db *redis.Client) *UrlRepoImpl {
 	}
 }
 
-func (u *UrlRepoImpl) CreateShortUrl(originalUrl, shortUrl string, expirationTimeHours time.Duration) (string, error) {
-	shortUrlDb := u.getShortUrlByOriginalUrl(originalUrl)
-	if shortUrlDb != "" {
-		return shortUrlDb, errors.New("url is already in database")
+func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) (string, error) {
+	isUrlExists := u.isOriginalUrlAlreadyExists(originalUrl)
+
+	if isUrlExists {
+		return shortUrl, errors.New("url already exists!")
 	}
-	err := u.db.Set(dbCtx, originalUrl, shortUrl, expirationTimeHours).Err()
+
+	err := u.db.HSet(dbCtx, "Urls", shortUrl, originalUrl).Err()
 	if err != nil {
 		return "", err
 	}
+
 	return shortUrl, nil
 }
 
-func (u *UrlRepoImpl) getShortUrlByOriginalUrl(originalUrl string) string {
-	shortUrlDb, _ := u.db.Get(dbCtx, originalUrl).Result()
-	return shortUrlDb
+func (u *UrlRepoImpl) GetOriginalUrl(code string) (string, error) {
+	urlsHash, _ := u.db.HGetAll(dbCtx, "Urls").Result()
+
+	for k, v := range urlsHash {
+		if k == code {
+			return v, nil
+		}
+	}
+
+	return "", errors.New("does not exist")
+}
+
+func (u *UrlRepoImpl) isOriginalUrlAlreadyExists(originalUrl string) bool {
+	urlsHash, _ := u.db.HGetAll(dbCtx, "Urls").Result()
+
+	for _, v := range urlsHash {
+		if v == originalUrl {
+			return true
+		}
+	}
+
+	return false
 }

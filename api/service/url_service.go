@@ -9,7 +9,7 @@ import (
 
 type UrlService interface {
 	CreateShortUrl(*model.Url) (string, error)
-	//GetOriginalUrl(string) (string, error)
+	GetOriginalUrl(string) (string, error)
 }
 
 type UrlServiceImpl struct {
@@ -28,10 +28,18 @@ func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 		shortUrl = helper.GenerateRandomChar()
 	}
 
-	res, err := u.repo.CreateShortUrl(req.OriginalUrl, shortUrl, 1*time.Hour)
+	res, err := u.repo.CreateShortUrl(shortUrl, req.OriginalUrl, 15*time.Minute)
 	if err != nil {
 		return res, err
 	}
 
 	return res, nil
+}
+
+func (u *UrlServiceImpl) GetOriginalUrl(code string) (string, error) {
+	url, err := u.repo.GetOriginalUrl(code)
+	if err != nil {
+		return "", err
+	}
+	return url, err
 }
