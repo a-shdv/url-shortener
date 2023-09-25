@@ -2,8 +2,8 @@ package model
 
 import "time"
 
-type Response struct {
+type Url struct {
 	OriginalUrl         string        `json:"originalUrl"`
-	ShortUrl            string        `json:"shortUrl"`
+	CustomShortUrl      string        `json:"customShortUrl"`
 	ExpirationTimeHours time.Duration `json:"expirationTimeHours"`
 }

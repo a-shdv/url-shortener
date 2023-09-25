@@ -6,21 +6,15 @@ import (
 )
 
 type Service struct {
-	RequestService
-	ResponseService
+	UrlService
 }
 
 func NewService(repo *repo.Repo) *Service {
 	return &Service{
-		RequestService:  NewRequestService(repo.RequestRepo),
-		ResponseService: NewResponseService(repo.ResponseRepo),
+		UrlService: NewUrlService(repo.UrlRepo),
 	}
 }
 
-type Request interface {
-	CreateShortUrl(request model.Request)
-}
-
-type Response interface {
-	GetOriginalUrl(url string)
+type Url interface {
+	CreateShortUrl(request model.Url)
 }
