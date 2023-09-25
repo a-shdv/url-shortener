@@ -1,14 +1,14 @@
 package repo
 
 import (
-	"errors"
+	"github.com/a-shdv/url-shortener/api/helper"
 	"github.com/go-redis/redis/v8"
-	"time"
+	"log"
 )
 
 type UrlRepo interface {
-	CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) (string, error)
-	//GetOriginalUrl(string) (string, error)
+	CreateShortUrl(shortUrl, originalUrl string) (string, error)
+	GetOriginalUrlByCode(string) string
 }
 
 type UrlRepoImpl struct {
@@ -21,19 +21,58 @@ func NewUrlRepoImpl(db *redis.Client) *UrlRepoImpl {
 	}
 }
 
-func (u *UrlRepoImpl) CreateShortUrl(originalUrl, shortUrl string, expirationTimeHours time.Duration) (string, error) {
-	shortUrlDb := u.getShortUrlByOriginalUrl(originalUrl)
-	if shortUrlDb != "" {
-		return shortUrlDb, errors.New("url is already in database")
+func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string) (string, error) {
+	// get existing data from db
+	urlsHash, err := u.db.HGetAll(dbCtx, "Urls").Result()
+	if err != nil {
+		log.Fatalf(err.Error())
 	}
-	err := u.db.Set(dbCtx, originalUrl, shortUrl, expirationTimeHours).Err()
+
+	// shortUrl already exists in db
+	shortUrlDb := getShortUrl(urlsHash, originalUrl)
+	if shortUrlDb != "" {
+		return shortUrlDb, nil
+	}
+
+	// encrypt short url
+	shortUrl = helper.GenerateRandomChar()
+
+	// add key-value pair to 'Urls' hashtable
+	err = u.db.HSet(dbCtx, "Urls", shortUrl, originalUrl).Err()
 	if err != nil {
 		return "", err
 	}
+
 	return shortUrl, nil
 }
 
-func (u *UrlRepoImpl) getShortUrlByOriginalUrl(originalUrl string) string {
-	shortUrlDb, _ := u.db.Get(dbCtx, originalUrl).Result()
-	return shortUrlDb
+func (u *UrlRepoImpl) GetOriginalUrlByCode(code string) string {
+	// get existing data from db
+	urlsHash, err := u.db.HGetAll(dbCtx, "Urls").Result()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	// getting original url by code (short url), provided in user request
+	originalUrl := getOriginalUrl(urlsHash, code)
+
+	return originalUrl
+}
+
+func getOriginalUrl(urlsHash map[string]string, shortUrl string) string {
+	for k, v := range urlsHash {
+		if k == shortUrl {
+			return v
+		}
+	}
+	return ""
+}
+
+func getShortUrl(urlsHash map[string]string, originalUrl string) string {
+	for k, v := range urlsHash {
+		if v == originalUrl {
+			return k
+		}
+	}
+	return ""
 }
