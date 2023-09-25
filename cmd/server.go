@@ -7,10 +7,12 @@ import (
 	"time"
 )
 
+// Server структура.
 type Server struct {
 	httpServer *http.Server
 }
 
+// Run метод, отвечающий за запуск сервера.
 func (s *Server) Run(port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
 		Addr:           os.Getenv("SERVER_ADDR"),
@@ -23,6 +25,7 @@ func (s *Server) Run(port string, handler http.Handler) error {
 	return s.httpServer.ListenAndServe()
 }
 
+// Shutdown метод, отвечающий за выключение сервера.
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }

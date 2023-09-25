@@ -8,6 +8,7 @@ import (
 
 var dbCtx = context.Background()
 
+// NewRedisDb конструктор.
 func NewRedisDb(dbNo int) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("DB_ADDR"),

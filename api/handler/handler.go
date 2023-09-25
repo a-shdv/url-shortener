@@ -5,14 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Handler структура.
 type Handler struct {
 	service *service.Service
 }
 
+// NewHandler конструктор.
 func NewHandler(service *service.Service) *Handler {
 	return &Handler{service: service}
 }
 
+// InitRoutes инициализация маршрутов.
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 

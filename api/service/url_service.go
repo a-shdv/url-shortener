@@ -5,28 +5,33 @@ import (
 	"github.com/a-shdv/url-shortener/api/repo"
 )
 
+// UrlService интерфейс.
 type UrlService interface {
 	CreateShortUrl(*model.Url) (string, error)
 	GetOriginalUrlByCode(string) string
 }
 
+// UrlServiceImpl структура.
 type UrlServiceImpl struct {
 	repo repo.UrlRepo
 }
 
+// NewUrlService конструктор.
 func NewUrlService(repo repo.UrlRepo) *UrlServiceImpl {
 	return &UrlServiceImpl{repo: repo}
 }
 
+// CreateShortUrl сервис, отвечающий за создание укороченной версии url-адреса.
 func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 	var shortUrl string
 
-	// short url has already been initialized during request
+	// проверка на то, было ли указано желаемое значение укороченной версии url-адреса пользователем
+	// во время отправки запроса
 	if req.CustomShortUrl != "" {
-		shortUrl = req.CustomShortUrl[:8] // accept only 8 characters
+		shortUrl = req.CustomShortUrl[:8] // ограничение на 8 символов
 	}
 
-	// creating new short url
+	// создание новой укороченной версии url-адреса
 	res, err := u.repo.CreateShortUrl(shortUrl, req.OriginalUrl)
 	if err != nil {
 		return res, err
@@ -35,8 +40,8 @@ func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 	return res, nil
 }
 
+// GetOriginalUrlByCode получение исходного url-адреса по его укороченной версии.
 func (u *UrlServiceImpl) GetOriginalUrlByCode(code string) string {
-	// getting existing origin url from db
 	url := u.repo.GetOriginalUrlByCode(code)
 	return url
 }
