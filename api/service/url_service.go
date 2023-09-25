@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/a-shdv/url-shortener/api/helper"
 	"github.com/a-shdv/url-shortener/api/model"
 	"github.com/a-shdv/url-shortener/api/repo"
-	"math/rand"
 )
 
 type UrlService interface {
@@ -22,7 +22,7 @@ func (r *UrlServiceImpl) CreateShortUrl(req *model.Url) string {
 	// generating a new short url address
 	var shortUrl string
 	if req.CustomShortUrl == "" {
-		shortUrl = generateRandomChar()
+		shortUrl = helper.GenerateRandomChar()
 	} else {
 		shortUrl = req.CustomShortUrl
 	}
@@ -30,13 +30,4 @@ func (r *UrlServiceImpl) CreateShortUrl(req *model.Url) string {
 	r.repo.CreateShortUrl(shortUrl, req.OriginalUrl, req.ExpirationTimeHours)
 
 	return shortUrl
-}
-
-func generateRandomChar() string {
-	charSet := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-	res := ""
-	for i := 0; i < 8; i++ {
-		res += string(charSet[rand.Intn(len(charSet))])
-	}
-	return res
 }

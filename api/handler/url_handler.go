@@ -1,20 +1,34 @@
 package handler
 
 import (
+	"github.com/a-shdv/url-shortener/api/helper"
 	"github.com/a-shdv/url-shortener/api/model"
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
 func (h *Handler) createShortUrl(c *gin.Context) {
-	var request model.Url
+	var request *model.Url
+
 	err := c.BindJSON(&request)
 	if err != nil {
-		log.Fatalf(err.Error())
+		c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "cannot parse json!",
+		})
+		return
 	}
 
-	shortUrl := h.service.UrlService.CreateShortUrl(&request)
+	reqUrl := helper.ParseUrlAddr(request.OriginalUrl)
+
+	if !govalidator.IsURL(reqUrl) {
+		c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "wrong url format!",
+		})
+		return
+	}
+
+	shortUrl := h.service.UrlService.CreateShortUrl(request)
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"code": shortUrl,

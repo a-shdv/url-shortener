@@ -1,12 +1,13 @@
 package helper
 
 import (
+	"log"
+	"math/rand"
 	"os"
 	"strings"
 )
 
-// TODO
-func parseUrlDomain(url string) string {
+func ParseUrlAddr(url string) string {
 	var domain string
 
 	domain = strings.Replace(url, "http://", "", 1)  // remove 'http://' from url-address
@@ -14,12 +15,15 @@ func parseUrlDomain(url string) string {
 	domain = strings.Replace(url, "www.", "", 1)     // remove 'www' from url-address
 	domain = strings.Split(url, "/")[0]
 
+	err := isReqUrlServerAddr(domain)
+	if err {
+		log.Fatalf("forbidden to use this url address!")
+	}
+
 	return domain
 }
 
-// IsReqUrlServerAddr TODO
-func IsReqUrlServerAddr(reqUrl string) bool {
-	reqUrl = parseUrlDomain(reqUrl)
+func isReqUrlServerAddr(reqUrl string) bool {
 	serverAddr := os.Getenv("SERVER_ADDR")
 
 	if reqUrl == serverAddr {
@@ -28,10 +32,17 @@ func IsReqUrlServerAddr(reqUrl string) bool {
 	return false
 }
 
-// ReplaceHttpsWithHttp TODO
-func ReplaceHttpsWithHttp(url string) string {
-	// make every url https
-	if url[:4] != "http" {
+func GenerateRandomChar() string {
+	charSet := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	res := ""
+	for i := 0; i < 8; i++ {
+		res += string(charSet[rand.Intn(len(charSet))])
+	}
+	return res
+}
+
+func replaceHttpsWithHttp(url string) string {
+	if url[:5] == "https" {
 		return "http://" + url
 	}
 	return url
