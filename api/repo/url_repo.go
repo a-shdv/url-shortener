@@ -1,13 +1,14 @@
 package repo
 
 import (
+	"github.com/a-shdv/url-shortener/api/helper"
 	"github.com/go-redis/redis/v8"
-	"time"
+	"log"
 )
 
 type UrlRepo interface {
-	CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) (string, error)
-	GetOriginalUrl(string) string
+	CreateShortUrl(shortUrl, originalUrl string) (string, error)
+	GetOriginalUrlByCode(string) string
 }
 
 type UrlRepoImpl struct {
@@ -20,14 +21,24 @@ func NewUrlRepoImpl(db *redis.Client) *UrlRepoImpl {
 	}
 }
 
-func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) (string, error) {
-	isUrlExists := u.isOriginalUrlAlreadyExists(originalUrl)
-
-	if isUrlExists {
-		return shortUrl, nil
+func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string) (string, error) {
+	// get existing data from db
+	urlsHash, err := u.db.HGetAll(dbCtx, "Urls").Result()
+	if err != nil {
+		log.Fatalf(err.Error())
 	}
 
-	err := u.db.HSet(dbCtx, "Urls", shortUrl, originalUrl).Err()
+	// shortUrl already exists in db
+	shortUrlDb := getShortUrl(urlsHash, originalUrl)
+	if shortUrlDb != "" {
+		return shortUrlDb, nil
+	}
+
+	// encrypt short url
+	shortUrl = helper.GenerateRandomChar()
+
+	// add key-value pair to 'Urls' hashtable
+	err = u.db.HSet(dbCtx, "Urls", shortUrl, originalUrl).Err()
 	if err != nil {
 		return "", err
 	}
@@ -35,26 +46,33 @@ func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string, expirationTim
 	return shortUrl, nil
 }
 
-func (u *UrlRepoImpl) GetOriginalUrl(code string) string {
-	urlsHash, _ := u.db.HGetAll(dbCtx, "Urls").Result()
+func (u *UrlRepoImpl) GetOriginalUrlByCode(code string) string {
+	// get existing data from db
+	urlsHash, err := u.db.HGetAll(dbCtx, "Urls").Result()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 
+	// getting original url by code (short url), provided in user request
+	originalUrl := getOriginalUrl(urlsHash, code)
+
+	return originalUrl
+}
+
+func getOriginalUrl(urlsHash map[string]string, shortUrl string) string {
 	for k, v := range urlsHash {
-		if k == code {
+		if k == shortUrl {
 			return v
 		}
 	}
-
 	return ""
 }
 
-func (u *UrlRepoImpl) isOriginalUrlAlreadyExists(originalUrl string) bool {
-	urlsHash, _ := u.db.HGetAll(dbCtx, "Urls").Result()
-
-	for _, v := range urlsHash {
+func getShortUrl(urlsHash map[string]string, originalUrl string) string {
+	for k, v := range urlsHash {
 		if v == originalUrl {
-			return true
+			return k
 		}
 	}
-
-	return false
+	return ""
 }

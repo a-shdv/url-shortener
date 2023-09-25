@@ -1,15 +1,13 @@
 package service
 
 import (
-	"github.com/a-shdv/url-shortener/api/helper"
 	"github.com/a-shdv/url-shortener/api/model"
 	"github.com/a-shdv/url-shortener/api/repo"
-	"time"
 )
 
 type UrlService interface {
 	CreateShortUrl(*model.Url) (string, error)
-	GetOriginalUrl(string) string
+	GetOriginalUrlByCode(string) string
 }
 
 type UrlServiceImpl struct {
@@ -22,13 +20,14 @@ func NewUrlService(repo repo.UrlRepo) *UrlServiceImpl {
 
 func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 	var shortUrl string
+
+	// short url has already been initialized during request
 	if req.CustomShortUrl != "" {
 		shortUrl = req.CustomShortUrl[:8] // accept only 8 characters
-	} else {
-		shortUrl = helper.GenerateRandomChar()
 	}
 
-	res, err := u.repo.CreateShortUrl(shortUrl, req.OriginalUrl, 15*time.Minute)
+	// creating new short url
+	res, err := u.repo.CreateShortUrl(shortUrl, req.OriginalUrl)
 	if err != nil {
 		return res, err
 	}
@@ -36,7 +35,8 @@ func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 	return res, nil
 }
 
-func (u *UrlServiceImpl) GetOriginalUrl(code string) string {
-	url := u.repo.GetOriginalUrl(code)
+func (u *UrlServiceImpl) GetOriginalUrlByCode(code string) string {
+	// getting existing origin url from db
+	url := u.repo.GetOriginalUrlByCode(code)
 	return url
 }
