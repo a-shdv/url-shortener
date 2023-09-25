@@ -30,7 +30,7 @@ func (h *Handler) createShortUrl(c *gin.Context) {
 	shortUrl, err := h.service.UrlService.CreateShortUrl(request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "url is already in database!",
+			"error": "this url is already in database!",
 			"code":  shortUrl,
 		})
 		return
@@ -39,7 +39,4 @@ func (h *Handler) createShortUrl(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"code": shortUrl,
 	})
-}
-
-func (h *Handler) getOriginalUrl(c *gin.Context) {
 }

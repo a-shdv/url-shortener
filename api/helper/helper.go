@@ -40,10 +40,3 @@ func GenerateRandomChar() string {
 	}
 	return res
 }
-
-func replaceHttpsWithHttp(url string) string {
-	if url[:5] == "https" {
-		return "http://" + url
-	}
-	return url
-}

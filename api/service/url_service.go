@@ -23,23 +23,15 @@ func NewUrlService(repo repo.UrlRepo) *UrlServiceImpl {
 func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 	var shortUrl string
 	if req.CustomShortUrl != "" {
-		shortUrl = req.CustomShortUrl
+		shortUrl = req.CustomShortUrl[:8] // accept only 8 characters
 	} else {
 		shortUrl = helper.GenerateRandomChar()
 	}
 
-	res, err := u.repo.CreateShortUrl(req.OriginalUrl, shortUrl, 12*time.Hour)
+	res, err := u.repo.CreateShortUrl(req.OriginalUrl, shortUrl, 1*time.Hour)
 	if err != nil {
 		return res, err
 	}
 
 	return res, nil
 }
-
-//func (u *UrlServiceImpl) GetOriginalUrl(reqUrl string) (string, error) {
-//	urlDb, err := u.repo.GetOriginalUrl(reqUrl)
-//	if err != nil {
-//		return "", err
-//	}
-//	return urlDb, nil
-//}

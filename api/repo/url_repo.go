@@ -37,11 +37,3 @@ func (u *UrlRepoImpl) getShortUrlByOriginalUrl(originalUrl string) string {
 	shortUrlDb, _ := u.db.Get(dbCtx, originalUrl).Result()
 	return shortUrlDb
 }
-
-//func (u *UrlRepoImpl) GetOriginalUrl(originalUrl, shortUrl string) (string, error) {
-//	urlDb, err := u.db.Get(dbCtx, originalUrl).Result()
-//	if err != nil {
-//		return "", err
-//	}
-//	return urlDb, nil
-//}
