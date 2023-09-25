@@ -10,10 +10,10 @@ import (
 func ParseUrlAddr(url string) string {
 	var domain string
 
-	domain = strings.Replace(url, "http://", "", 1)  // remove 'http://' from url-address
-	domain = strings.Replace(url, "https://", "", 1) // remove 'https://' from url-address
-	domain = strings.Replace(url, "www.", "", 1)     // remove 'www' from url-address
-	domain = strings.Split(url, "/")[0]
+	domain = strings.Replace(url, "http://", "", 1)     // remove 'http://' from url-address
+	domain = strings.Replace(domain, "https://", "", 1) // remove 'https://' from url-address
+	domain = strings.Replace(domain, "www.", "", 1)     // remove 'www' from url-address
+	domain = strings.Split(domain, "/")[0]
 
 	err := isReqUrlServerAddr(domain)
 	if err {

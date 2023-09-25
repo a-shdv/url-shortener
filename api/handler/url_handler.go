@@ -12,19 +12,13 @@ import (
 func (h *Handler) createShortUrl(c *gin.Context) {
 	var request *model.Url
 
-	err := c.BindJSON(&request)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "cannot parse json!",
-		})
+	if err := c.BindJSON(&request); err != nil {
+		helper.NewErrorResponse(c, http.StatusBadRequest, "cannot parse json!")
 		return
 	}
 
-	reqUrl := helper.ParseUrlAddr(request.OriginalUrl)
-	if !govalidator.IsURL(reqUrl) {
-		c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "wrong url format!",
-		})
+	if reqUrl := helper.ParseUrlAddr(request.OriginalUrl); !govalidator.IsURL(reqUrl) {
+		helper.NewErrorResponse(c, http.StatusBadRequest, "wrong url format!")
 		return
 	}
 
@@ -49,11 +43,7 @@ func (h *Handler) getOriginalUrl(c *gin.Context) {
 		return
 	}
 
-	url, err := h.service.UrlService.GetOriginalUrl(code)
-	if err != nil {
-		log.Printf("unable to find url")
-		return
-	}
+	url := h.service.UrlService.GetOriginalUrl(code)
 
 	c.Redirect(http.StatusFound, "https://www."+url)
 }

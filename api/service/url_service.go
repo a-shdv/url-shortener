@@ -9,7 +9,7 @@ import (
 
 type UrlService interface {
 	CreateShortUrl(*model.Url) (string, error)
-	GetOriginalUrl(string) (string, error)
+	GetOriginalUrl(string) string
 }
 
 type UrlServiceImpl struct {
@@ -36,10 +36,7 @@ func (u *UrlServiceImpl) CreateShortUrl(req *model.Url) (string, error) {
 	return res, nil
 }
 
-func (u *UrlServiceImpl) GetOriginalUrl(code string) (string, error) {
-	url, err := u.repo.GetOriginalUrl(code)
-	if err != nil {
-		return "", err
-	}
-	return url, err
+func (u *UrlServiceImpl) GetOriginalUrl(code string) string {
+	url := u.repo.GetOriginalUrl(code)
+	return url
 }

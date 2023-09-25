@@ -1,14 +1,13 @@
 package repo
 
 import (
-	"errors"
 	"github.com/go-redis/redis/v8"
 	"time"
 )
 
 type UrlRepo interface {
 	CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) (string, error)
-	GetOriginalUrl(string) (string, error)
+	GetOriginalUrl(string) string
 }
 
 type UrlRepoImpl struct {
@@ -25,7 +24,7 @@ func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string, expirationTim
 	isUrlExists := u.isOriginalUrlAlreadyExists(originalUrl)
 
 	if isUrlExists {
-		return shortUrl, errors.New("url already exists!")
+		return shortUrl, nil
 	}
 
 	err := u.db.HSet(dbCtx, "Urls", shortUrl, originalUrl).Err()
@@ -36,16 +35,16 @@ func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string, expirationTim
 	return shortUrl, nil
 }
 
-func (u *UrlRepoImpl) GetOriginalUrl(code string) (string, error) {
+func (u *UrlRepoImpl) GetOriginalUrl(code string) string {
 	urlsHash, _ := u.db.HGetAll(dbCtx, "Urls").Result()
 
 	for k, v := range urlsHash {
 		if k == code {
-			return v, nil
+			return v
 		}
 	}
 
-	return "", errors.New("does not exist")
+	return ""
 }
 
 func (u *UrlRepoImpl) isOriginalUrlAlreadyExists(originalUrl string) bool {
