@@ -1,32 +1,33 @@
 package repo
 
 import (
-	"github.com/a-shdv/url-shortener/api/model"
 	"github.com/go-redis/redis/v8"
-	"github.com/google/uuid"
 	"log"
 	"time"
 )
 
-type RequestRepo struct {
+type RequestRepo interface {
+	CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration)
+}
+
+type RequestRepoImpl struct {
 	db *redis.Client
 }
 
-func NewRequestRepo(db *redis.Client) *RequestRepo {
-	return &RequestRepo{
+func NewRequestRepoImpl(db *redis.Client) *RequestRepoImpl {
+	return &RequestRepoImpl{
 		db: db,
 	}
 }
 
-func (r *RequestRepo) CreateShortUrl(req model.Request) {
-	var shortUrl string
-	if req.CustomShortUrl == "" {
-		shortUrl = uuid.New().String()[:6]
-	} else {
-		shortUrl = req.CustomShortUrl
+func (r *RequestRepoImpl) CreateShortUrl(shortUrl, originalUrl string, expirationTimeHours time.Duration) {
+	// check if the user provided short is already in use
+	val, _ := r.db.Get(dbCtx, shortUrl).Result()
+	if val != "" {
+		log.Fatalf("short url is already in use!")
 	}
 
-	err := r.db.Set(dbCtx, shortUrl, req.OriginalUrl, req.ExpirationTimeHours*3600*time.Second).Err()
+	err := r.db.Set(dbCtx, shortUrl, originalUrl, expirationTimeHours*3600*time.Second).Err()
 	if err != nil {
 		log.Fatal(err.Error())
 	}

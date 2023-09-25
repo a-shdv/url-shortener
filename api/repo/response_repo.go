@@ -2,12 +2,15 @@ package repo
 
 import "github.com/go-redis/redis/v8"
 
-type ResponseRepo struct {
+type ResponseRepo interface {
+}
+
+type ResponseRepoImpl struct {
 	db *redis.Client
 }
 
-func NewResponseRepo(db *redis.Client) *ResponseRepo {
-	return &ResponseRepo{
+func NewResponseRepoImpl(db *redis.Client) *ResponseRepoImpl {
+	return &ResponseRepoImpl{
 		db: db,
 	}
 }

@@ -6,13 +6,12 @@ import (
 	"log"
 )
 
-func (h *Handler) сreateShortUrl(c *gin.Context) {
+func (h *Handler) createShortUrl(c *gin.Context) {
 	var request model.Request
 	err := c.BindJSON(&request)
 	if err != nil {
 		log.Printf(err.Error())
 	}
-	log.Printf("%s", err)
 
-	h.service.Request.CreateShortUrl(request)
+	h.service.RequestService.CreateShortUrl(&request)
 }

@@ -6,14 +6,14 @@ import (
 )
 
 type Service struct {
-	Request
-	Response
+	RequestService
+	ResponseService
 }
 
 func NewService(repo *repo.Repo) *Service {
 	return &Service{
-		Request:  NewRequestService(*repo.RequestRepo),
-		Response: NewResponseService(*repo.ResponseRepo),
+		RequestService:  NewRequestService(repo.RequestRepo),
+		ResponseService: NewResponseService(repo.ResponseRepo),
 	}
 }
 

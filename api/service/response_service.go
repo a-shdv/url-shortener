@@ -2,17 +2,21 @@ package service
 
 import "github.com/a-shdv/url-shortener/api/repo"
 
-type ResponseService struct {
+type ResponseService interface {
+	GetOriginalUrl(string)
+}
+
+type ResponseServiceImpl struct {
 	repo repo.ResponseRepo
 }
 
-func NewResponseService(repo repo.ResponseRepo) *ResponseService {
-	return &ResponseService{
+func NewResponseService(repo repo.ResponseRepo) *ResponseServiceImpl {
+	return &ResponseServiceImpl{
 		repo: repo,
 	}
 }
 
-func (r *ResponseService) GetOriginalUrl(url string) {
+func (r *ResponseServiceImpl) GetOriginalUrl(url string) {
 	//TODO implement me
 	panic("implement me")
 }
