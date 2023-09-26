@@ -1,0 +1,77 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "api server for url-shortener app",
+        "title": "url-shortener api",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/api/v1",
+    "paths": {
+        "/": {
+            "post": {
+                "description": "createShortUrl Сохранение коротких url-адресов в БД",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "urls"
+                ],
+                "summary": "Создание коротких url-адресов",
+                "parameters": [
+                    {
+                        "description": "url info",
+                        "name": "url",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Url"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/:code": {
+            "get": {
+                "description": "getOriginalUrl Получение исходных url-адресов из БД",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "urls"
+                ],
+                "summary": "Получение исходных url-адресов по коду (короткому url)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "code",
+                        "name": "string",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "model.Url": {
+            "type": "object",
+            "properties": {
+                "customShortUrl": {
+                    "type": "string"
+                },
+                "originalUrl": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
