@@ -24,3 +24,8 @@
 
 <img width="650" alt="Screenshot 2023-09-26 at 2 11 00 PM" src="https://github.com/a-shdv/url-shortener/assets/54847558/bc443a8b-e560-43c1-9a2d-75ecb154ee17">
 
+
+**Создание кастомной короткой ссылки**
+
+
+<img width="650" alt="Screenshot 2023-09-26 at 2 21 48 PM" src="https://github.com/a-shdv/url-shortener/assets/54847558/2325cf11-bdc4-4f97-aff4-6daca617c897">
