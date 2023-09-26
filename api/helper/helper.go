@@ -7,22 +7,24 @@ import (
 	"strings"
 )
 
+// ParseUrlAddr парсинг url-адреса, чтобы привести его к более общему виду, например, "example.com/something".
 func ParseUrlAddr(url string) string {
-	var domain string
+	var res string
 
-	domain = strings.Replace(url, "http://", "", 1)     // remove 'http://' from url-address
-	domain = strings.Replace(domain, "https://", "", 1) // remove 'https://' from url-address
-	domain = strings.Replace(domain, "www.", "", 1)     // remove 'www' from url-address
-	//domain = strings.Split(domain, "/")[0]
+	res = strings.Replace(url, "http://", "", 1)  // убрать 'http://' из url-адреса.
+	res = strings.Replace(res, "https://", "", 1) // убрать 'https://' из url-адреса.
+	res = strings.Replace(res, "www.", "", 1)     // убрать 'www' из url-адреса.
 
-	err := isReqUrlServerAddr(domain)
+	// проверка на то, вдруг пользователь ввёл тот же адрес, что и у сервера.
+	err := isReqUrlServerAddr(res)
 	if err {
 		log.Fatalf("forbidden to use this url address!")
 	}
 
-	return domain
+	return res
 }
 
+// isReqUrlServerAddr проверка на то, вдруг пользователь ввёл тот же адрес, что и у сервера.
 func isReqUrlServerAddr(reqUrl string) bool {
 	serverAddr := os.Getenv("SERVER_ADDR")
 
@@ -32,6 +34,7 @@ func isReqUrlServerAddr(reqUrl string) bool {
 	return false
 }
 
+// GenerateRandomChar генерирует символы из множества: /^[A-z0-9]{8}$/
 func GenerateRandomChar() string {
 	charSet := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 	res := ""

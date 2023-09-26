@@ -12,22 +12,23 @@ import (
 )
 
 func main() {
-	// env variables loading
+	// загрузка переменных окружения
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
 
-	// db creation
+	// создание клиента redis db
 	redisDb := repo.NewRedisDb(0)
 	defer redisDb.Close()
 
-	// server startup
+	// внедрение зависимостей
 	repositories := repo.NewRepository(redisDb)
 	services := service.NewService(repositories)
 	handlers := handler.NewHandler(services)
 
-	log.Println("App has been started...")
+	// запуск сервера
+	log.Println("url-shortener has been started...")
 	srv := new(Server)
 	go func() {
 		if err = srv.Run(os.Getenv("SERVER_ADDR"), handlers.InitRoutes()); err != nil {
@@ -35,9 +36,9 @@ func main() {
 		}
 	}()
 
-	// server shut down
+	// выключение сервера
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
-	log.Println("App is shutting down...")
+	log.Println("url-shortener is shutting down...")
 }
