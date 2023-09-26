@@ -1,0 +1,51 @@
+basePath: /api/v1
+definitions:
+  model.Url:
+    properties:
+      customShortUrl:
+        type: string
+      originalUrl:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: api server for url-shortener app
+  title: url-shortener api
+  version: "1.0"
+paths:
+  /:
+    post:
+      consumes:
+      - application/json
+      description: createShortUrl Сохранение коротких url-адресов в БД
+      parameters:
+      - description: url info
+        in: body
+        name: url
+        required: true
+        schema:
+          $ref: '#/definitions/model.Url'
+      produces:
+      - application/json
+      responses: {}
+      summary: Создание коротких url-адресов
+      tags:
+      - urls
+  /:code:
+    get:
+      consumes:
+      - application/json
+      description: getOriginalUrl Получение исходных url-адресов из БД
+      parameters:
+      - description: code
+        in: query
+        name: string
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Получение исходных url-адресов по коду (короткому url)
+      tags:
+      - urls
+swagger: "2.0"

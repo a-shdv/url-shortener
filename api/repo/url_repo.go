@@ -40,7 +40,9 @@ func (u *UrlRepoImpl) CreateShortUrl(shortUrl, originalUrl string) (string, erro
 	}
 
 	// закодировать короткий url-адрес символами /^[A-z0-9]{8}$/
-	shortUrl = helper.GenerateRandomChar()
+	if shortUrl == "" {
+		shortUrl = helper.GenerateRandomChar()
+	}
 
 	// добавить пару ключ-значение в хэш-таблицу'Urls'.
 	wg := &sync.WaitGroup{}
