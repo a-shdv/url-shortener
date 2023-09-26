@@ -29,3 +29,11 @@
 
 
 <img width="650" alt="Screenshot 2023-09-26 at 2 21 48 PM" src="https://github.com/a-shdv/url-shortener/assets/54847558/2325cf11-bdc4-4f97-aff4-6daca617c897">
+
+
+**Результат работы в Redis**
+
+
+<img width="650" alt="Screenshot 2023-09-26 at 2 47 09 PM" src="https://github.com/a-shdv/url-shortener/assets/54847558/8d4482f1-2473-4cf7-9dc6-e23dafe74d43">
+
+
