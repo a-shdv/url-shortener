@@ -67,14 +67,7 @@ func (u *UrlRepoImpl) GetOriginalUrlByCode(code string) string {
 	}
 
 	// получение исходного url-адреса по его укороченной версии (коду).
-	var originalUrl string
-	wg := &sync.WaitGroup{}
-	go func() {
-		wg.Add(1)
-		originalUrl = getOriginalUrl(urlsHash, code)
-		wg.Done()
-	}()
-	wg.Wait()
+	originalUrl := getOriginalUrl(urlsHash, code)
 
 	return originalUrl
 }
